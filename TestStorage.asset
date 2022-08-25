@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e355570fcef8d64d828380b8f5a3552, type: 3}
+  m_Name: TestStorage
+  m_EditorClassIdentifier: 
+  nodes:
+  - GUID: a39710fa-2029-42b7-8057-e538b1ae4dad
+    position: {x: 119, y: 79}
+  - GUID: 59fac2b1-4040-4e73-8f3a-c417f132ca72
+    position: {x: 396, y: 79}
+  ports:
+  - portName: In
+    nodeGUID: a39710fa-2029-42b7-8057-e538b1ae4dad
+    direction: 0
+  - portName: Out
+    nodeGUID: a39710fa-2029-42b7-8057-e538b1ae4dad
+    direction: 1
+  - portName: In
+    nodeGUID: 59fac2b1-4040-4e73-8f3a-c417f132ca72
+    direction: 0
+  - portName: Out
+    nodeGUID: 59fac2b1-4040-4e73-8f3a-c417f132ca72
+    direction: 1
+  edges:
+  - inputPort:
+      portName: In
+      nodeGUID: 59fac2b1-4040-4e73-8f3a-c417f132ca72
+      direction: 0
+    outputPort:
+      portName: Out
+      nodeGUID: a39710fa-2029-42b7-8057-e538b1ae4dad
+      direction: 1
