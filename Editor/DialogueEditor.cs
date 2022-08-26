@@ -8,7 +8,7 @@ public class DialogueEditor : A_GraphEditorView
 
     protected override void SetUpContextMenu()
     {
-        base.SetUpContextMenu();
+        //base.SetUpContextMenu();
 
         var addNodeMenu = new ContextualMenuManipulator(menuEvent =>
             menuEvent.menu.AppendAction("Add New Dialogue Node", actionEvent =>

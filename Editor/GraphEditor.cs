@@ -15,7 +15,6 @@ public class GraphEditor : EditorWindow
     [MenuItem("Tools/Dialogue Editor")]
     public static void CreateEditorWindow()
     {
-        // Create the new editor window (When MenuItem clicked)
         var window = GetWindow<GraphEditor>();
         window.titleContent = new GUIContent("Graph Editor");
     }
