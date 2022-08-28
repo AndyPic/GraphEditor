@@ -1,16 +1,50 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
+using UnityEditor.Experimental.GraphView;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class GraphEditor : EditorWindow
+public class GraphEditor : EditorWindow, ISerializationCallbackReceiver
 {
-    public GraphNodeStorage CurrentlyEditing { get => currentlyEditing; }
     private GraphNodeStorage currentlyEditing;
 
     private A_GraphEditorView graphView;
+
+    [SerializeField] private bool reloadNeeded;
+    [SerializeField] private string serialisedGraphTypeName;
+    [SerializeField] private GraphNodeStorage serialisedStorage;
+
+    public void OnBeforeSerialize()
+    {
+        if (graphView == null || serialisedStorage == default || serialisedGraphTypeName == default)
+        {
+            serialisedStorage = default;
+            serialisedGraphTypeName = default;
+            reloadNeeded = false;
+            return;
+        }
+
+        graphView.SaveGraph(serialisedStorage);
+        serialisedGraphTypeName = graphView.GetType().AssemblyQualifiedName;
+        reloadNeeded = true;
+    }
+
+    public void OnAfterDeserialize(){ }
+
+    private void Reload()
+    {
+        // Load correct graph type
+        ConstructGraphView(serialisedGraphTypeName);
+
+        rootVisualElement.Remove(rootVisualElement.Q<TemplateContainer>());
+        rootVisualElement.Q<Toolbar>().Q<ObjectField>().SetEnabled(true);
+
+        // Load from storage
+        graphView.LoadGraph(serialisedStorage);
+    }
 
     [MenuItem("Tools/Dialogue Editor")]
     public static void CreateEditorWindow()
@@ -22,6 +56,12 @@ public class GraphEditor : EditorWindow
     private void OnEnable()
     {
         NewGraph();
+
+        if (reloadNeeded)
+            Reload();
+
+        if (serialisedStorage == null)
+            serialisedStorage = CreateInstance<GraphNodeStorage>();
     }
 
     private void NewGraph()
@@ -30,7 +70,7 @@ public class GraphEditor : EditorWindow
         {
             // Ask to save
             if (currentlyEditing != null && SavePrompt())
-                graphView.SaveGraph();
+                graphView.SaveGraph(currentlyEditing);
 
             // Reset everything
             graphView = null;
@@ -48,7 +88,7 @@ public class GraphEditor : EditorWindow
         var toolbar = new Toolbar();
 
         // Create the save button
-        var saveButton = new Button(() => graphView.SaveGraph()) { text = "Save" };
+        var saveButton = new Button(() => graphView.SaveGraph(currentlyEditing)) { text = "Save" };
         saveButton.SetEnabled(false);
 
         //loadSaveToolbar.Add(new Button(() => graphView.Load()) { text = "Load" });
@@ -61,7 +101,7 @@ public class GraphEditor : EditorWindow
         {
             // Pop up if want to save old one
             if (currentlyEditing != null && SavePrompt())
-                graphView.SaveGraph();
+                graphView.SaveGraph(currentlyEditing);
 
             // TODO: Clear old graph out
             graphView.ResetGraph();
@@ -81,7 +121,7 @@ public class GraphEditor : EditorWindow
             saveButton.SetEnabled(true);
 
             // Load new asset
-            graphView.LoadGraph();
+            graphView.LoadGraph(currentlyEditing);
         });
 
         var newGraphButton = new Button(() => NewGraph()) { text = "New Graph" };
@@ -119,10 +159,17 @@ public class GraphEditor : EditorWindow
 
     private void ConstructGraphView(Type type)
     {
-        graphView = Activator.CreateInstance(type, args: this) as A_GraphEditorView;
+        graphView = Activator.CreateInstance(type) as A_GraphEditorView;
         graphView.StretchToParentSize();
         rootVisualElement.Add(graphView);
         graphView.SendToBack();
+    }
+
+    private void ConstructGraphView(string stringType)
+    {
+        var type = Type.GetType(stringType);
+
+        ConstructGraphView(type);
     }
 
     private bool SavePrompt()

@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 public class DialogueEditor : A_GraphEditorView
 {
-    public DialogueEditor(GraphEditor editorWindow) : base(editorWindow) { }
+    public DialogueEditor() : base() { }
 
     protected override void SetUpContextMenu()
     {

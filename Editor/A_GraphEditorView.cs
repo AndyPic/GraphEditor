@@ -13,13 +13,10 @@ public abstract class A_GraphEditorView : GraphView
 {
     protected Vector2 MousePosition { get { return contentViewContainer.WorldToLocal(Mouse.current.position.ReadValue()); } }
 
-    protected readonly GraphEditor editorWindow;
     protected readonly Vector2 defaultNodeSize = new(250, 100);
 
-    public A_GraphEditorView(GraphEditor editorWindow)
+    public A_GraphEditorView()
     {
-        this.editorWindow = editorWindow;
-
         styleSheets.Add(Resources.Load<StyleSheet>("NarrativeGraph"));
         SetupZoom(0.1f, 2f);
 
@@ -50,7 +47,7 @@ public abstract class A_GraphEditorView : GraphView
         this.AddManipulator(addNodeMenu);
     }
 
-    public void SaveGraph()
+    public void SaveGraph(GraphNodeStorage saveTarget)
     {
         List<NodeData> nodes = new();
 
@@ -81,14 +78,13 @@ public abstract class A_GraphEditorView : GraphView
             nodes.Add(new NodeData(nodeGUID, outputPortData.ToArray(), nodePosition));
         }
 
-        editorWindow.CurrentlyEditing.Nodes = nodes;
-        Debug.Log("Saved");
+        saveTarget.Nodes = nodes;
     }
 
-    public void LoadGraph()
+    public void LoadGraph(GraphNodeStorage loadTarget)
     {
         // First pass to build nodes
-        foreach (var nodeData in editorWindow.CurrentlyEditing.Nodes)
+        foreach (var nodeData in loadTarget.Nodes)
         {
             GraphNode newNode;
 
@@ -107,7 +103,7 @@ public abstract class A_GraphEditorView : GraphView
         }
 
         // Second pass to build edges
-        foreach (var nodeData in editorWindow.CurrentlyEditing.Nodes)
+        foreach (var nodeData in loadTarget.Nodes)
         {
             for (int portIndex = 0; portIndex < nodeData.OutputPorts.Length; portIndex++)
             {
@@ -245,5 +241,4 @@ public abstract class A_GraphEditorView : GraphView
         target.RefreshPorts();
         target.RefreshExpandedState();
     }
-
 }
